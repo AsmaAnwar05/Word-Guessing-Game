@@ -1,24 +1,29 @@
+/*
+  Note: download provided wordlist.txt or make your own text file (one word per line without space use).
+  Place wordlist.txt in the same directory where you run the program,
+  make sure to write path location correctly according to your text file location
+*/
 #include <ctype.h>
 #include<stdio.h>
 #include<string.h>
 #include<time.h>
 #include<stdlib.h>
-#include<ctype.h>
+
 struct Player {
     char name[15];
     int score;
     double time_taken;
 };
 
-void setName(struct Player* p, const char* n) {
+void setName(struct Player* p,char *n) {
     strcpy(p->name, n);
 }
 
-void setScore(struct Player* p,const int s) {
+void setScore(struct Player* p,int s) {
     p->score = s;
 }
 
-void setTime(struct Player* p,const double t) {
+void setTime(struct Player* p,double t) {
     p->time_taken = t;
 }
 
@@ -27,9 +32,7 @@ void printPlayer(struct Player p) {
            p.name, p.score, p.time_taken);
 }
 int getHideNo(int l) {
-    if (l<5) {
-        return 1;
-    }
+    if (l<5) {return 1;}
     else if (l<7 && l>=5) {return 2;}
     else if (l<9 && l>=7) {return 3;}
     else if (l<11 && l>=9) {return 4;}
@@ -54,6 +57,9 @@ void hides(char word[] ) {
             }
             hiddenindex[random]=1;
         }
+        else {
+            i--;
+        }
     }
 printf("Guess the Word %s\n", word);
 }
@@ -70,34 +76,41 @@ void gamefunction(struct Player* p){
     fptr = fopen("E:\\clion project\\sdp project\\wordlist.txt", "r");//change file location according to text file located in your pc
     char ch;
     int wordcount=0;
+    char tempword[20];
     if (fptr == NULL) {
-            printf("Unable to open the file\n");
+            printf("Unable to open the file.make sure a word file exist and file location using correctly\n");
         }
         else {
-            for (int k=0;(ch = fgetc(fptr)) != EOF;k++) {
-                if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\0')
-                    wordcount++;
+            for (int i=0;fscanf(fptr, "%s", tempword) != EOF;i++) {
+                wordcount++;
             }
-            char wordbank[wordcount][20];
             rewind(fptr);
+            char wordbank[wordcount][20];
             for (int j = 0; j < wordcount; j++) {
                 fscanf(fptr, "%s", wordbank[j]);
             }
-            rewind(fptr);
+            int randworduse[wordcount];
+            for (int i = 0; i < wordcount; i++) {
+                randworduse[i] = 0;
+            }
             for (int i=0;i<quesNo && chance>0;i++) {
-            int randindex=rand()%wordcount;
-                strcpy(word, wordbank[randindex]);
-                strcpy(wordcpy,word);
+                int randindex=rand()%wordcount;
+                if (randworduse[randindex]==0){
+                    strcpy(word, wordbank[randindex]);
                 printf("Question %d: ",i+1 );
-                hides(wordcpy);
+                    strcpy(wordcpy, wordbank[randindex]);
+                    for (int j=0;wordcpy[j]!='\0';j++) {
+                        wordcpy[j]=tolower(wordcpy[j]);
+                        word[j]=tolower(word[j]);
+                    }
+                    hides(wordcpy);
                 printf("Input your guess and press enter\n");
                 clock_t start = clock();
                 scanf("%s",guessword);
                 clock_t end = clock();
                 double timeTaken = (double)(end - start)/CLOCKS_PER_SEC;
                 totalTime=totalTime+timeTaken;
-                for (int j=0;word[j]!='\0';j++) {
-                    word[j]=tolower(word[j]);
+                for (int j=0;guessword[j]!='\0';j++) {
                     guessword[j]=tolower(guessword[j]);
                 }
                 if(strcmp(guessword, "s") == 0) {
@@ -122,6 +135,9 @@ void gamefunction(struct Player* p){
 
                     }
                 }
+                    randworduse[randindex]=1;
+            }
+                else{i--;}
             }
     }
     p->score = point;
@@ -133,9 +149,8 @@ void welcome() {
     printf("Welcome to Word Guessing Game\n"
        "Game rules:\n1.Maximum player: 3.\n"
        "2. There are 4 question to answer.\n"
-       "3.You have 20 seconds to answer each question\n"
-       "4.you have 2 chance for wrong guess. if you guess wrong or want to skip a question than 1 point decress\n"
-       "5.If player more than one,there are one winner who score most. "
+       "3.you have 2 chance for wrong guess. if you guess wrong or want to skip a question than 1 point decress\n"
+       "4.If player more than one,there are one winner who score most. "
        "if there are draw than compare who took less time\n\n");
 
 }
