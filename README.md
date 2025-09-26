@@ -1,8 +1,10 @@
 # Word-Guessing-Game
 
-This is a console based game developed using C language as a University project for SDP 1 .  
+This is a console based simplified version of a word-guessing game developed using C language as a University project for SDP 1 to demonstrate core logic within time constraints.
+The number of players and questions is kept low intentionally for clarity and demonstration purposes..  
 The game supports up to 3 players, where each player tries to guess words with some letters hidden.
 You have 2 chances to guess wrong or skip, and you get points for correct guesses and loss point for wrong or skip guess.
+
 
 ---
 ## Important-before running
