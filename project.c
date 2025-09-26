@@ -1,12 +1,15 @@
+#include <ctype.h>
 #include<stdio.h>
 #include<string.h>
 #include<time.h>
 #include<stdlib.h>
+#include<ctype.h>
 struct Player {
     char name[15];
     int score;
     double time_taken;
 };
+
 void setName(struct Player* p, const char* n) {
     strcpy(p->name, n);
 }
@@ -18,7 +21,6 @@ void setScore(struct Player* p,const int s) {
 void setTime(struct Player* p,const double t) {
     p->time_taken = t;
 }
-
 
 void printPlayer(struct Player p) {
     printf("Your Name: %s\nScore: %d\nTime Taken: %.2f seconds\n",
@@ -55,48 +57,72 @@ void hides(char word[] ) {
     }
 printf("Guess the Word %s\n", word);
 }
+
 void gamefunction(struct Player* p){
-    int chance=3;
-    int quesNo=5;
+    int chance=2;
+    int quesNo=4;
     int point=0;
     char guessword[50];
     char word[50];
     char wordcpy[50];
     double totalTime=0;
-    for (int i=0;i<quesNo && chance>0;i++) {
-        printf("Input a word\n");
-        scanf("%s",word);
-        strcpy(wordcpy,word);
-        printf("Question %d: ",i+1 );
-        hides(wordcpy);
-        printf("Input your guess and press enter\n");
-        clock_t start = clock();
-        scanf("%s",guessword);
-        clock_t end = clock();
-        double timeTaken = (double)(end - start)/CLOCKS_PER_SEC;
-        totalTime=totalTime+timeTaken;
-        if(strcmp(guessword, "s") == 0) {
-            printf("moving to next question\n");
-            point--;
-            chance--;
-            printf("Your score now %d\n",point);
-            printf("You have %d chance\n\n",chance);
+    FILE *fptr;
+    fptr = fopen("E:\\clion project\\sdp project\\wordlist.txt", "r");//change file location according to text file located in your pc
+    char ch;
+    int wordcount=0;
+    if (fptr == NULL) {
+            printf("Unable to open the file\n");
         }
         else {
-        if (strcmp(guessword,word)==0) {
-            printf("Correct Guess\n");
-            point++;
-            printf("Your score now %d\n\n",point);
-        }
-        else {
-            printf("Wrong Guess\n");
-            point--;
-            chance--;
-            printf("Your score now %d\n",point);
-            printf("You have %d chance\n\n",chance);
+            for (int k=0;(ch = fgetc(fptr)) != EOF;k++) {
+                if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\0')
+                    wordcount++;
+            }
+            char wordbank[wordcount][20];
+            rewind(fptr);
+            for (int j = 0; j < wordcount; j++) {
+                fscanf(fptr, "%s", wordbank[j]);
+            }
+            rewind(fptr);
+            for (int i=0;i<quesNo && chance>0;i++) {
+            int randindex=rand()%wordcount;
+                strcpy(word, wordbank[randindex]);
+                strcpy(wordcpy,word);
+                printf("Question %d: ",i+1 );
+                hides(wordcpy);
+                printf("Input your guess and press enter\n");
+                clock_t start = clock();
+                scanf("%s",guessword);
+                clock_t end = clock();
+                double timeTaken = (double)(end - start)/CLOCKS_PER_SEC;
+                totalTime=totalTime+timeTaken;
+                for (int j=0;word[j]!='\0';j++) {
+                    word[j]=tolower(word[j]);
+                    guessword[j]=tolower(guessword[j]);
+                }
+                if(strcmp(guessword, "s") == 0) {
+                    printf("moving to next question.Word was %s\n", word);
+                    point--;
+                    chance--;
+                    printf("Your score now %d\n",point);
+                    printf("You have %d chance\n\n",chance);
+                }
+                else {
+                    if (strcmp(guessword,word)==0) {
+                        printf("Correct Guess\n");
+                        point++;
+                        printf("Your score now %d\n\n",point);
+                    }
+                    else {
+                        printf("Wrong Guess. Word was %s\n", word);
+                        point--;
+                        chance--;
+                        printf("Your score now %d\n",point);
+                        printf("You have %d chance\n\n",chance);
 
-        }
-        }
+                    }
+                }
+            }
     }
     p->score = point;
     p->time_taken = totalTime;
@@ -105,15 +131,16 @@ void gamefunction(struct Player* p){
 }
 void welcome() {
     printf("Welcome to Word Guessing Game\n"
-       "Game rules:\n1.Maximum player: 4.\n"
-       "2. There are 5 question to answer.\n"
-       "3.You have 30 seconds to answer each question\n"
-       "4.you have 3 chance for wrong guess. if you guess wrong or want to skip a question than 1 point decress\n"
+       "Game rules:\n1.Maximum player: 3.\n"
+       "2. There are 4 question to answer.\n"
+       "3.You have 20 seconds to answer each question\n"
+       "4.you have 2 chance for wrong guess. if you guess wrong or want to skip a question than 1 point decress\n"
        "5.If player more than one,there are one winner who score most. "
        "if there are draw than compare who took less time\n\n");
 
 }
 int main() {
+    srand(time(NULL));
     char name[20];
     welcome();
     int playerno;
